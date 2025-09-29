@@ -360,7 +360,7 @@ object Battle {
         val defenderHasEvasion = defender.hasUnique("chance to evade attacks")
 
         if (defenderHasEvasion != null) {
-            val chance = text.filter {it.isDigit()}
+            val chance = defenderHasEvasion.filter {it.isDigit()}
             if (Random.nextInt(100) < chance.toInt()) {
         // 공격 회피
                 battleLog.add("${defender.name} evaded the attack!")
