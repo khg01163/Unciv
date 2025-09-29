@@ -357,6 +357,17 @@ object Battle {
         val attackerHealthBefore = attacker.getHealth()
         val defenderHealthBefore = defender.getHealth()
 
+        val defenderHasEvasion = defender.unit.hasUnique("chance to evade attacks")
+
+        if (defenderHasEvasion != null) {
+            val chance = defenderHasEvasion.getValue() // 예: 20
+            if (Random.nextInt(100) < chance) {
+        // 공격 회피
+                combatLog("The attack was evaded!")
+                return // 데미지 계산하지 않고 종료
+            }
+}
+
         if (defender is MapUnitCombatant && defender.unit.isCivilian() && attacker.isMelee()) {
             BattleUnitCapture.captureCivilianUnit(attacker, defender)
         } else if (attacker.isRanged() && !attacker.isAirUnit()) {  // Air Units are Ranged, but take damage as well
