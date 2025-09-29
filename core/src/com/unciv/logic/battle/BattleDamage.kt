@@ -317,12 +317,10 @@ object BattleDamage {
         uniques.params.getOrNull(0)?.toIntOrNull() ?: 0
     }
         }
-    }
 
     if (evasionChance > 0 && Random.nextInt(100) < evasionChance) {
         return 0
     }
-}
 
         if (defender.isCivilian()) return BattleConstants.DAMAGE_TO_CIVILIAN_UNIT
         val ratio = getAttackingStrength(attacker, defender, tileToAttackFrom) /
