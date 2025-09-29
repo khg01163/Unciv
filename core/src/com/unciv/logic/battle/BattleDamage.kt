@@ -308,15 +308,22 @@ object BattleDamage {
         randomnessFactor: Float = Random(defender.getCivInfo().gameInfo.turns * defender.getTile().position.hashCode().toLong()).nextFloat()
         ,
     ): Int {
-        val defenderUniques = defender.mapUnit.UniqueType.EvasionChance
-        val evasionChance = defenderUniques.sumOf { unique.params.getOrNull(0)?.toIntOrNull() ?: 0 }
-        if (defender.mapUnit.UniqueType.EvasionChance!=null) 
-        {
-            if (evasionChance > 0 && Random.nextInt(100) < evasionChance)
-            {
-                return 0
-            }
+        if (defender is MapUnitCombatant) {
+    // defender.unit.unitType.uniques 에서 Evasion 관련 유니크 필터
+    val evasionUniques = defender.unit.unitType.uniques
+        .filter { it.text.startsWith("Evasion") }
+
+    val evasionChance = evasionUniques.sumOf { u ->
+        u.params.getOrNull(0)?.toIntOrNull() ?: 0
+    }
         }
+    }
+
+    if (evasionChance > 0 && Random.nextInt(100) < evasionChance) {
+        return 0
+    }
+}
+
         if (defender.isCivilian()) return BattleConstants.DAMAGE_TO_CIVILIAN_UNIT
         val ratio = getAttackingStrength(attacker, defender, tileToAttackFrom) /
                 getDefendingStrength(attacker, defender, tileToAttackFrom)
