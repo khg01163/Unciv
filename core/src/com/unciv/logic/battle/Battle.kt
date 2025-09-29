@@ -357,7 +357,7 @@ object Battle {
         val attackerHealthBefore = attacker.getHealth()
         val defenderHealthBefore = defender.getHealth()
 
-        val defenderHasEvasion = defender.unit.hasUnique("chance to evade attacks")
+        val defenderHasEvasion = defender.hasUnique("chance to evade attacks")
 
         if (defenderHasEvasion != null) {
             val chance = text.filter {it.isDigit()}
