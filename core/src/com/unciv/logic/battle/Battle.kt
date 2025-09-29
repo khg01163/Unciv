@@ -351,6 +351,7 @@ object Battle {
             addBattleLog("${defender.getDisplayName()} evaded the attack!")
             return DamageDealt(0, 0)
         }
+    }
 
         
         @Pure operator fun plus(other: DamageDealt) =
