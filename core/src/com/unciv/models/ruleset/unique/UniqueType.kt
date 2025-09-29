@@ -21,7 +21,7 @@ enum class UniqueType(
 
 
 
-    evasionChance("[amount]% evasion", UniqueTarget.Unit, UniqueTarget.Global),
+    EvasionChance("[amount]% evasion", UniqueTarget.Unit, UniqueTarget.Global),
     
 
     
