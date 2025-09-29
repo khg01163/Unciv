@@ -308,10 +308,8 @@ object BattleDamage {
         randomnessFactor: Float = Random(defender.getCivInfo().gameInfo.turns * defender.getTile().position.hashCode().toLong()).nextFloat()
         ,
     ): Int {
-        val defenderUniques = unique in combatant.getMatchingUniques(UniqueType.Evasion)
-        val evasionChance = defenderUniques
-        .filter { it.type == UniqueType.Evasion }
-        .filter { it.isDigit.toInt() }
+        val defenderUniques = baseUnit.uniques(UniqueType.Evasion)
+        val evasionChance = defenderUniques.filter { it.isDigit.toInt() }
         if (evasionUnique!=null) 
         {
             if (evasionChance > 0 && Random.nextInt(100) < evasionChance)
