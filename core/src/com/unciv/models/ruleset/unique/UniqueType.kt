@@ -19,6 +19,12 @@ enum class UniqueType(
     val docDescription: String? = null
 ) {
 
+
+
+    evasionChance("[amount]% evasion", UniqueTarget.Unit, UniqueTarget.Global)
+    
+
+    
     //////////////////////////////////////// region 01 GLOBAL UNIQUES ////////////////////////////////////////
 
     // region Stat providing uniques
