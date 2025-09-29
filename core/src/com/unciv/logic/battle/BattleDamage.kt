@@ -310,7 +310,7 @@ object BattleDamage {
     ): Int {
         if (defender is MapUnitCombatant) {
     // defender.unit.unitType.uniques 에서 Evasion 관련 유니크 필터
-    val evasionUniques = defender.unit.baseUnit.uniques.filter { it.type == UniqueType.EvasionChance }
+    val evasionUniques = defender.unit.getMatchingUniques(UniqueType.EvasionChance)
     
 
     val evasionChance = evasionUniques.sumOf { unique ->
