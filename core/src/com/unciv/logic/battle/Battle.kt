@@ -360,11 +360,11 @@ object Battle {
         val defenderHasEvasion = defender.unit.hasUnique("chance to evade attacks")
 
         if (defenderHasEvasion != null) {
-            val chance = defenderHasEvasion.getValue() // 예: 20
-            if (Random.nextInt(100) < chance) {
+            val chance = text.filter {it.isDigit()}
+            if (Random.nextInt(100) < chance.toInt()) {
         // 공격 회피
-                combatLog("The attack was evaded!")
-                return // 데미지 계산하지 않고 종료
+                battleLog.add("${defender.name} evaded the attack!")
+                return Battle.DamageDealt(0, 0)// 데미지 계산하지 않고 종료
             }
 }
 
