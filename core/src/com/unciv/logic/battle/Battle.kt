@@ -343,6 +343,16 @@ object Battle {
      *  @param defenderDealt Damage done by defender to attacker
      */
     data class DamageDealt(val attackerDealt: Int, val defenderDealt: Int) {
+        // 회피 판정
+        val evasionUniques = defender.getMatchingUniques("chance to evade attacks")
+        val evasionChance = evasionUniques.firstOrNull()?.params?.getOrNull(0)?.toIntOrNull() ?: 0
+    
+        if (evasionChance > 0 && Random.nextInt(100) < evasionChance) {
+            addBattleLog("${defender.getDisplayName()} evaded the attack!")
+            return DamageDealt(0, 0)
+        }
+
+        
         @Pure operator fun plus(other: DamageDealt) =
             DamageDealt(attackerDealt + other.attackerDealt, defenderDealt + other.defenderDealt)
         companion object {
@@ -358,14 +368,6 @@ object Battle {
         val defenderHealthBefore = defender.getHealth()
 
 }
-// 회피 판정
-        val evasionUniques = defender.getMatchingUniques("chance to evade attacks")
-        val evasionChance = evasionUniques.firstOrNull()?.params?.getOrNull(0)?.toIntOrNull() ?: 0
-    
-        if (evasionChance > 0 && Random.nextInt(100) < evasionChance) {
-            addBattleLog("${defender.getDisplayName()} evaded the attack!")
-            return DamageDealt(0, 0)
-        }
 
         if (defender is MapUnitCombatant && defender.unit.isCivilian() && attacker.isMelee()) {
             BattleUnitCapture.captureCivilianUnit(attacker, defender)
