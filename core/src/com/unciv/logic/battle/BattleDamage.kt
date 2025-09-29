@@ -310,15 +310,14 @@ object BattleDamage {
     ): Int {
         if (defender is MapUnitCombatant) {
     // defender.unit.unitType.uniques 에서 Evasion 관련 유니크 필터
-    val evasionUniques = defender.unit.unitType.uniques
-        .filter { it.text.startsWith("Evasion") }
+    val evasionUniques = defender.unit.baseUnit.uniques.filter { it.type == UniqueType.EvasionChance }
+    
 
-    val evasionChance = evasionUniques.sumOf {
-        uniques.params.getOrNull(0)?.toIntOrNull() ?: 0
-    }
+    val evasionChance = evasionUniques.sumOf { unique ->
+        unique.params.getOrNull(0)?.toIntOrNull() ?: 0
         }
 
-    if (evasionChance > 0 && Random.nextInt(100) < evasionChance) {
+    if (evasionChance.toInt() > 0 && Random.nextInt(100) < evasionChance.toInt()) {
         return 0
     }
 
@@ -326,6 +325,7 @@ object BattleDamage {
         val ratio = getAttackingStrength(attacker, defender, tileToAttackFrom) /
                 getDefendingStrength(attacker, defender, tileToAttackFrom)
         return (damageModifier(ratio, false, randomnessFactor) * getHealthDependantDamageRatio(attacker)).roundToInt()
+    }
     }
 
     @Pure
