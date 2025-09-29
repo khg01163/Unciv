@@ -313,8 +313,8 @@ object BattleDamage {
     val evasionUniques = defender.unit.unitType.uniques
         .filter { it.text.startsWith("Evasion") }
 
-    val evasionChance = evasionUniques.sumOf { u ->
-        u.params.getOrNull(0)?.toIntOrNull() ?: 0
+    val evasionChance = evasionUniques.sumOf {
+        uniques.params.getOrNull(0)?.toIntOrNull() ?: 0
     }
         }
     }
