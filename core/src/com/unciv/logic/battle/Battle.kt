@@ -357,16 +357,15 @@ object Battle {
         val attackerHealthBefore = attacker.getHealth()
         val defenderHealthBefore = defender.getHealth()
 
-        val defenderHasEvasion = defender.hasUnique("chance to evade attacks")
-
-        if (defenderHasEvasion != null) {
-            val chance = defenderHasEvasion.filter {it.isDigit()}
-            if (Random.nextInt(100) < chance.toInt()) {
-        // 공격 회피
-                battleLog.add("${defender.name} evaded the attack!")
-                return Battle.DamageDealt(0, 0)// 데미지 계산하지 않고 종료
-            }
 }
+// 회피 판정
+        val evasionUniques = defender.getMatchingUniques("chance to evade attacks")
+        val evasionChance = evasionUniques.firstOrNull()?.params?.getOrNull(0)?.toIntOrNull() ?: 0
+    
+        if (evasionChance > 0 && Random.nextInt(100) < evasionChance) {
+            addBattleLog("${defender.getDisplayName()} evaded the attack!")
+            return DamageDealt(0, 0)
+        }
 
         if (defender is MapUnitCombatant && defender.unit.isCivilian() && attacker.isMelee()) {
             BattleUnitCapture.captureCivilianUnit(attacker, defender)
