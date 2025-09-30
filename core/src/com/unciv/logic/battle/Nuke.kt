@@ -353,7 +353,7 @@ object Shell {
             canShell = false
         }
 
-        val blastRadius = shell.unit.getShellBlastRadius()
+        val blastRadius = nuke.unit.getNukeBlastRadius()
         for (tile in targetTile.getTilesInDistance(blastRadius)) {
             checkDefenderCiv(tile.getOwner())
             checkDefenderCiv(Battle.getMapCombatantOfTile(tile)?.getCivInfo())
@@ -382,7 +382,7 @@ object Shell {
 
         for (tile in hitTiles) {
             // Handle complicated effects
-            doShellExplosionForTile(attacker, tile, targetTile == tile)
+            doNukeExplosionForTile(attacker, tile, targetTile == tile)
         }
 
 
@@ -392,7 +392,7 @@ object Shell {
         // It's unclear whether using nukes results in a penalty with all civs, or only affected civs.
         // For now I'll make it give a diplomatic penalty to all known civs, but some testing for this would be appreciated
         for (civ in attackingCiv.getKnownCivs()) {
-            civ.getDiplomacyManager(attackingCiv)!!.setModifier(DiplomaticModifiers.UsedShellWeapons, -50f)
+            civ.getDiplomacyManager(attackingCiv)!!.setModifier(DiplomaticModifiers.UsedNukeWeapons, -50f)
         }
 
         if (!attacker.isDefeated()) {
@@ -596,7 +596,7 @@ if (city != null && tile.position == city.location) {
         //인구 감소 삭제
 
     @Readonly
-    private fun City.getAggregateModifier(uniqueType: UniqueType): Float {
+    fun City.getAggregateModifier(uniqueType: UniqueType): Float {
         var modifier = 1f
         for (unique in getMatchingUniques(uniqueType)) {
             if (!matchesFilter(unique.params[1])) continue
@@ -605,3 +605,4 @@ if (city != null && tile.position == city.location) {
         return modifier
     }
 }
+
