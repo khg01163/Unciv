@@ -96,6 +96,14 @@ object Battle {
         return attacker.unit.hasMovement()
     }
 
+
+    fun Shell(attacker: ICombatant, attackableTile: AttackavleTile): DamageDealt {
+        return if (attacker is MapUnitCombatant && attacker.unit.isShellWeapon()) {
+            Shell.Shell(attacker, attackableTile.tileToAttack)
+            DamageDealt.None
+        } else { attack(attacker, getMapCombatantOfTile(attackableTile.tileToAttack)!!)
+        }
+}
     /**
      * This is meant to be called only after all prerequisite checks have been done.
      */
