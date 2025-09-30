@@ -317,3 +317,291 @@ object Nuke {
         return modifier
     }
 }
+
+
+object Shell {
+
+
+    /**
+     *  Checks whether [nuke] is allowed to nuke [targetTile]
+     *  - Not if we would need to declare war on someone we can't.
+     *  - Disallow nuking the tile the nuke is in, as per Civ5 (but not nuking your own tiles/units otherwise)
+     *
+     *  Both [BattleTable.simulateNuke] and [AirUnitAutomation.automateNukes] check range, so that check is omitted here.
+     */
+    @Readonly
+    fun mayUseShell(shell: MapUnitCombatant, targetTile: Tile): Boolean {
+        val attackerCiv = shell.getCivInfo()
+        val launchTile = shell.getTile()
+        
+        if (launchTile == targetTile) return false
+        if (!targetTile.isExplored(attackerCiv)) return false
+        // Can only nuke in unit's range, visibility (line of sight) doesn't matter
+        if (launchTile.aerialDistanceTo(targetTile) > shell.unit.getRange()) return false
+
+        var canShell = true
+        
+        fun checkDefenderCiv(defenderCiv: Civilization?) {
+            if (defenderCiv == null) return
+            // Allow nuking yourself! (Civ5 source: CvUnit::isNukeVictim)
+            if (defenderCiv == attackerCiv || defenderCiv.isDefeated()) return
+            if (defenderCiv.isBarbarian) return
+            // Gleaned from Civ5 source - this disallows nuking unknown civs even in invisible tiles
+            // https://github.com/Gedemon/Civ5-DLL/blob/master/CvGameCoreDLL_Expansion1/CvUnit.cpp#L5056
+            // https://github.com/Gedemon/Civ5-DLL/blob/master/CvGameCoreDLL_Expansion1/CvTeam.cpp#L986
+            if (attackerCiv.getDiplomacyManager(defenderCiv)?.canAttack() == true) return
+            canShell = false
+        }
+
+        val blastRadius = shell.unit.getShellBlastRadius()
+        for (tile in targetTile.getTilesInDistance(blastRadius)) {
+            checkDefenderCiv(tile.getOwner())
+            checkDefenderCiv(Battle.getMapCombatantOfTile(tile)?.getCivInfo())
+        }
+        return canShell
+    }
+
+    @Suppress("FunctionName")   // Yes we want this name to stand out
+    fun Shell(attacker: MapUnitCombatant, targetTile: Tile) {
+        val attackingCiv = attacker.getCivInfo()
+        
+
+        val blastRadius = attacker.unit.getMatchingUniques(UniqueType.BlastRadius)
+            .firstOrNull()?.params?.get(0)?.toInt() ?: 2
+
+        val hitTiles = targetTile.getTilesInDistance(blastRadius)
+
+        val (hitCivsTerritory, notifyDeclaredWarCivs) =
+            declareWarOnHitCivs(attackingCiv, hitTiles, attacker, targetTile)
+
+        addNukeNotifications(targetTile, attacker, notifyDeclaredWarCivs, attackingCiv, hitCivsTerritory)
+
+        if (attacker.isDefeated()) return
+
+        attacker.unit.attacksSinceTurnStart.add(Vector2(targetTile.position))
+
+        for (tile in hitTiles) {
+            // Handle complicated effects
+            doShellExplosionForTile(attacker, tile, targetTile == tile)
+        }
+
+
+        // Instead of postBattleAction() just destroy the unit, all other functions are not relevant
+        if (attacker.unit.hasUnique(UniqueType.SelfDestructs)) attacker.unit.destroy()
+
+        // It's unclear whether using nukes results in a penalty with all civs, or only affected civs.
+        // For now I'll make it give a diplomatic penalty to all known civs, but some testing for this would be appreciated
+        for (civ in attackingCiv.getKnownCivs()) {
+            civ.getDiplomacyManager(attackingCiv)!!.setModifier(DiplomaticModifiers.UsedShellWeapons, -50f)
+        }
+
+        if (!attacker.isDefeated()) {
+            attacker.unit.attacksThisTurn += 1
+        }
+    }
+
+    private fun addNukeNotifications(
+        targetTile: Tile,
+        attacker: MapUnitCombatant,
+        notifyDeclaredWarCivs: ArrayList<Civilization>,
+        attackingCiv: Civilization,
+        hitCivsTerritory: ArrayList<Civilization>
+    ) {
+        val nukeNotificationAction = sequenceOf(LocationAction(targetTile.position), CivilopediaAction("Units/" + attacker.getName()))
+
+        // If the nuke has been intercepted and destroyed then it fails to detonate
+        if (attacker.isDefeated()) {
+            // Notify attacker that they are now at war for the attempt
+            for (defendingCiv in notifyDeclaredWarCivs)
+                attackingCiv.addNotification(
+                    "After an attempted attack by our [${attacker.getName()}], [${defendingCiv}] has declared war on us!",
+                    nukeNotificationAction,
+                    Notification.NotificationCategory.Diplomacy,
+                    defendingCiv.civName,
+                    NotificationIcon.War,
+                    attacker.getName()
+                )
+            return
+        }
+
+        // Notify attacker that they are now at war
+        for (defendingCiv in notifyDeclaredWarCivs)
+            attackingCiv.addNotification(
+                "After being hit by our [${attacker.getName()}], [${defendingCiv}] has declared war on us!",
+                nukeNotificationAction, NotificationCategory.Diplomacy, defendingCiv.civName, NotificationIcon.War, attacker.getName()
+            )
+
+        // Message all other civs
+        for (otherCiv in attackingCiv.gameInfo.civilizations) {
+            if (!otherCiv.isAlive() || otherCiv == attackingCiv) continue
+            if (hitCivsTerritory.contains(otherCiv))
+                otherCiv.addNotification(
+                    "A(n) [${attacker.getName()}] from [${attackingCiv.civName}] has exploded in our territory!",
+                    nukeNotificationAction, NotificationCategory.War, attackingCiv.civName, NotificationIcon.War, attacker.getName()
+                )
+            else if (otherCiv.knows(attackingCiv))
+                otherCiv.addNotification(
+                    "A(n) [${attacker.getName()}] has been detonated by [${attackingCiv.civName}]!",
+                    nukeNotificationAction, NotificationCategory.War, attackingCiv.civName, NotificationIcon.War, attacker.getName()
+                )
+            else
+                otherCiv.addNotification(
+                    "A(n) [${attacker.getName()}] has been detonated by [an unknown civilization]!",
+                    nukeNotificationAction, NotificationCategory.War, NotificationIcon.War, attacker.getName()
+                )
+        }
+    }
+
+    private fun declareWarOnHitCivs(
+        attackingCiv: Civilization,
+        hitTiles: Sequence<Tile>,
+        attacker: MapUnitCombatant,
+        targetTile: Tile
+    ): Pair<ArrayList<Civilization>, ArrayList<Civilization>> {
+        // Declare war on the owners of all hit tiles
+        val notifyDeclaredWarCivs = ArrayList<Civilization>()
+        fun tryDeclareWar(civSuffered: Civilization) {
+            if (civSuffered != attackingCiv
+                && civSuffered.knows(attackingCiv)
+                && civSuffered.getDiplomacyManager(attackingCiv)!!.diplomaticStatus != DiplomaticStatus.War
+            ) {
+                attackingCiv.getDiplomacyManager(civSuffered)!!.declareWar()
+                if (!notifyDeclaredWarCivs.contains(civSuffered)) notifyDeclaredWarCivs.add(
+                    civSuffered
+                )
+            }
+        }
+
+        val hitCivsTerritory = ArrayList<Civilization>()
+        for (hitCiv in hitTiles.mapNotNull { it.getOwner() }.distinct()) {
+            hitCivsTerritory.add(hitCiv)
+            tryDeclareWar(hitCiv)
+        }
+
+        // Declare war on all potentially hit units. They'll try to intercept the nuke before it drops
+        for (civWhoseUnitWasAttacked in hitTiles
+            .flatMap { it.getUnits() }
+            .map { it.civ }.distinct()
+            .filter { it != attackingCiv }) {
+            tryDeclareWar(civWhoseUnitWasAttacked)
+            if (attacker.unit.baseUnit.isAirUnit() && !attacker.isDefeated()) {
+                AirInterception.tryInterceptAirAttack(
+                    attacker,
+                    targetTile,
+                    civWhoseUnitWasAttacked,
+                    null
+                )
+            }
+        }
+        return Pair(hitCivsTerritory, notifyDeclaredWarCivs)
+    }
+
+    private fun doNukeExplosionForTile(
+        attacker: MapUnitCombatant,
+        tile: Tile,
+        nukeStrength: Int,
+        isGroundZero: Boolean
+    ) {
+        // https://forums.civfanatics.com/resources/unit-guide-modern-future-units-g-k.25628/
+        // https://www.carlsguides.com/strategy/civilization5/units/aircraft-nukes.ph
+        // Testing done by Ravignir
+        // original source code: GenerateNuclearExplosionDamage(), ApplyNuclearExplosionDamage()
+
+        var damageModifierFromMissingResource = 1f
+        val civResources = attacker.getCivInfo().getCivResourcesByName()
+        for (resource in attacker.unit.getResourceRequirementsPerTurn().keys) {
+            if (civResources[resource]!! < 0 && !attacker.getCivInfo().isBarbarian)
+                damageModifierFromMissingResource *= 0.5f // I could not find a source for this number, but this felt about right
+            // - Original Civ5 does *not* reduce damage from missing resource, from source inspection
+        }
+
+        var buildingModifier = 1f  // Strange, but in Civ5 a bunker mitigates damage to garrison, even if the city is destroyed by the nuke
+
+
+
+        
+        // Damage city and reduce its population
+        val city = tile.getCity()
+if (city != null && tile.position == city.location) {
+    val cityCombatant = CityCombatant(city)
+    val damage = calculateRangedUnitDamage(attacker, cityCombatant)  // 일반 원거리 유닛 공격 피해 계산
+    cityCombatant.takeDamage(damage)
+
+    if (city.canBeDestroyed(false)) {
+        city.destroyCity()
+    }
+
+    Battle.postBattleNotifications(attacker, cityCombatant, city.getCenterTile())
+    Battle.destroyIfDefeated(city.civ, attacker.getCivInfo(), city.location)
+}
+
+
+        // Damage and/or destroy units on the tile
+        for (unit in tile.getUnits().toList()) {
+    val defender = MapUnitCombatant(unit)
+    val damage = calculateRangedUnitDamage(attacker, defender)
+    defender.takeDamage(damage)
+
+    Battle.postBattleNotifications(attacker, defender, defender.getTile())
+    Battle.destroyIfDefeated(defender.getCivInfo(), attacker.getCivInfo())
+}
+
+
+        // Pillage improvements, pillage roads, add fallout
+        if (!tile.isCityCenter()) {  // 도시 중심 타일은 건드리지 않음
+    if (tile.getUnpillagedImprovement() != null && !tile.getTileImprovement()!!.hasUnique(UniqueType.Irremovable)) {
+        tile.setPillaged()
+    }
+    if (tile.getUnpillagedRoad() != RoadStatus.None)
+        tile.setPillaged()
+}
+
+
+    private fun applyPillageAndFallout(tile: Tile) {
+        if (tile.getUnpillagedImprovement() != null && !tile.getTileImprovement()!!.hasUnique(
+                UniqueType.Irremovable)) {
+            if (tile.getTileImprovement()!!.hasUnique(UniqueType.Unpillagable)) {
+                tile.removeImprovement()
+            } else {
+                tile.setPillaged()
+            }
+        }
+        if (tile.getUnpillagedRoad() != RoadStatus.None)
+            tile.setPillaged()
+        if (tile.isWater || tile.isImpassible() || tile.terrainFeatures.contains("Fallout")) return
+        tile.addTerrainFeature("Fallout")
+    }
+
+    /** @return the "protection" modifier from buildings (Bomb Shelter, UniqueType.PopulationLossFromNukes) */
+    private fun doShellExplosionDamageToCity(targetedCity: City, attacker: MapUnitCombatant) {
+    // 일반 유닛 공격과 동일하게 도시 파괴 가능 여부 판단
+    if (targetedCity.canBeDestroyed(false)) {
+        targetedCity.destroyCity()
+        return
+    }
+
+    // 도시 방어력/건물 효과 적용 가능
+    val cityCombatant = CityCombatant(targetedCity)
+    
+    // 일반 원거리 유닛 공격과 동일한 피해 계산 함수 호출
+    val damage = calculateRangedUnitDamage(attacker, cityCombatant)
+    cityCombatant.takeDamage(damage)
+
+    // 인구 감소 없음
+    // 기존 핵 특유 인구 손실 로직은 제거
+}
+
+
+        // Difference to original: Civ5 rounds population loss down twice - before and after bomb shelters
+        //인구 감소 삭제
+
+    @Readonly
+    private fun City.getAggregateModifier(uniqueType: UniqueType): Float {
+        var modifier = 1f
+        for (unique in getMatchingUniques(uniqueType)) {
+            if (!matchesFilter(unique.params[1])) continue
+            modifier *= unique.params[0].toPercent()
+        }
+        return modifier
+    }
+}
