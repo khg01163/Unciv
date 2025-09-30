@@ -353,7 +353,7 @@ object Shell {
             canShell = false
         }
 
-        val blastRadius = nuke.unit.getNukeBlastRadius()
+        val blastRadius = shell.unit.getNukeBlastRadius()
         for (tile in targetTile.getTilesInDistance(blastRadius)) {
             checkDefenderCiv(tile.getOwner())
             checkDefenderCiv(Battle.getMapCombatantOfTile(tile)?.getCivInfo())
@@ -496,10 +496,9 @@ object Shell {
         return Pair(hitCivsTerritory, notifyDeclaredWarCivs)
     }
 
-    private fun doNukeExplosionForTile(
+    private fun doShellExplosionForTile(
         attacker: MapUnitCombatant,
         tile: Tile,
-        nukeStrength: Int,
         isGroundZero: Boolean
     ) {
         // https://forums.civfanatics.com/resources/unit-guide-modern-future-units-g-k.25628/
