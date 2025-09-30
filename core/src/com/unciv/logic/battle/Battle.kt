@@ -97,8 +97,8 @@ object Battle {
     }
 
 
-    fun Shell(attacker: ICombatant, attackableTile: AttackavleTile): DamageDealt {
-        return if (attacker is MapUnitCombatant && attacker.unit.isShellWeapon()) {
+    fun Shell(attacker: ICombatant, attackableTile: AttackableTile): DamageDealt {
+        return if (attacker is MapUnitCombatant && attacker.unit.hasUnique(UniqueType.ShellWeapon())) {
             Shell.Shell(attacker, attackableTile.tileToAttack)
             DamageDealt.None
         } else { attack(attacker, getMapCombatantOfTile(attackableTile.tileToAttack)!!)
