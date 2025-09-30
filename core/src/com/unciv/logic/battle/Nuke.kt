@@ -1,6 +1,6 @@
 package com.unciv.logic.battle
 
-import com.unciv.logic.battle.BattleDamage
+import com.unciv.logic.battle.Battle
 import com.badlogic.gdx.math.Vector2
 import com.unciv.logic.city.City
 import com.unciv.logic.civilization.Civilization
@@ -392,9 +392,7 @@ object Shell {
 
         // It's unclear whether using nukes results in a penalty with all civs, or only affected civs.
         // For now I'll make it give a diplomatic penalty to all known civs, but some testing for this would be appreciated
-        for (civ in attackingCiv.getKnownCivs()) {
-            civ.getDiplomacyManager(attackingCiv)!!.setModifier(DiplomaticModifiers.UsedShellWeapons, -50f)
-        }
+        //외교 뭐시기 삭제
 
         if (!attacker.isDefeated()) {
             attacker.unit.attacksThisTurn += 1
