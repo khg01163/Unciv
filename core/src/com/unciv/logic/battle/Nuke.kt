@@ -523,7 +523,7 @@ object Shell {
         val city = tile.getCity()
 if (city != null && tile.position == city.location) {
     val cityCombatant = CityCombatant(city)
-    val damage = calculateRangedUnitDamage(attacker, cityCombatant)  // 일반 원거리 유닛 공격 피해 계산
+    val damage = calculateDamageToAttacker(attacker, cityCombatant)  // 일반 원거리 유닛 공격 피해 계산
     cityCombatant.takeDamage(damage)
 
     if (city.canBeDestroyed(false)) {
@@ -538,7 +538,7 @@ if (city != null && tile.position == city.location) {
         // Damage and/or destroy units on the tile
         for (unit in tile.getUnits().toList()) {
     val defender = MapUnitCombatant(unit)
-    val damage = calculateRangedUnitDamage(attacker, defender)
+    val damage = calculateDamageToAttacker(attacker, defender)
     defender.takeDamage(damage)
 
     Battle.postBattleNotifications(attacker, defender, defender.getTile())
@@ -583,7 +583,7 @@ if (city != null && tile.position == city.location) {
     val cityCombatant = CityCombatant(targetedCity)
     
     // 일반 원거리 유닛 공격과 동일한 피해 계산 함수 호출
-    val damage = calculateRangedUnitDamage(attacker, cityCombatant)
+    val damage = calculateDamageToAttacker(attacker, cityCombatant)
     cityCombatant.takeDamage(damage)
 
     // 인구 감소 없음
@@ -603,3 +603,5 @@ if (city != null && tile.position == city.location) {
         }
         return modifier
     }
+    }
+}
