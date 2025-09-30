@@ -382,7 +382,7 @@ object Shell {
 
         for (tile in hitTiles) {
             // Handle complicated effects
-            doNukeExplosionForTile(attacker, tile, targetTile == tile)
+            doShellExplosionForTile(attacker, tile, targetTile == tile)
         }
 
 
@@ -392,7 +392,7 @@ object Shell {
         // It's unclear whether using nukes results in a penalty with all civs, or only affected civs.
         // For now I'll make it give a diplomatic penalty to all known civs, but some testing for this would be appreciated
         for (civ in attackingCiv.getKnownCivs()) {
-            civ.getDiplomacyManager(attackingCiv)!!.setModifier(DiplomaticModifiers.UsedNukeWeapons, -50f)
+            civ.getDiplomacyManager(attackingCiv)!!.setModifier(DiplomaticModifiers.UsedShellWeapons, -50f)
         }
 
         if (!attacker.isDefeated()) {
@@ -556,7 +556,7 @@ if (city != null && tile.position == city.location) {
 }
 
 
-    private fun applyPillageAndFallout(tile: Tile) {
+    fun applyPillageAndFallout(tile: Tile) {
         if (tile.getUnpillagedImprovement() != null && !tile.getTileImprovement()!!.hasUnique(
                 UniqueType.Irremovable)) {
             if (tile.getTileImprovement()!!.hasUnique(UniqueType.Unpillagable)) {
@@ -572,7 +572,7 @@ if (city != null && tile.position == city.location) {
     }
 
     /** @return the "protection" modifier from buildings (Bomb Shelter, UniqueType.PopulationLossFromNukes) */
-    private fun doShellExplosionDamageToCity(targetedCity: City, attacker: MapUnitCombatant) {
+    fun doShellExplosionDamageToCity(targetedCity: City, attacker: MapUnitCombatant) {
     // 일반 유닛 공격과 동일하게 도시 파괴 가능 여부 판단
     if (targetedCity.canBeDestroyed(false)) {
         targetedCity.destroyCity()
@@ -603,5 +603,3 @@ if (city != null && tile.position == city.location) {
         }
         return modifier
     }
-}
-
