@@ -22,7 +22,7 @@ enum class UniqueType(
 
 
     EvasionChance("[amount]% evasion", UniqueTarget.Unit, UniqueTarget.Global),
-    ShellWeapon("Shell weapon of Strength [amount]", UniqueTarget.Unit), 
+    ShellWeapon("Shell weapon", UniqueTarget.Unit), 
 
     
     //////////////////////////////////////// region 01 GLOBAL UNIQUES ////////////////////////////////////////
