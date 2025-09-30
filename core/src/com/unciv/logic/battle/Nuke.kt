@@ -1,6 +1,6 @@
 package com.unciv.logic.battle
 
-import com.unciv.logic.battle.Battle
+import com.unciv.logic.battle.BattleDamage.calculateDamageToAttacker
 import com.badlogic.gdx.math.Vector2
 import com.unciv.logic.city.City
 import com.unciv.logic.civilization.Civilization
