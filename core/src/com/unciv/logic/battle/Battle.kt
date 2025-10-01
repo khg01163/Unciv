@@ -97,6 +97,26 @@ object Battle {
     }
 
 
+
+
+
+    fun SpecialAttack(attacker: Iconmetant, attackabkeTile: AttackableTile): DamageDealt {
+        val Mortar: Int = 0
+        val MachineGun: Int = 0
+        val Grenade: Int = 0
+        val SecondRange:Int = 0
+        if (attacker is MapUnitCombatabt 
+            && attacker.unit.hasUnique(UnitType.Mortar)) {           
+        }
+            
+        
+        
+    }
+
+
+
+
+    
     fun Shell(attacker: ICombatant, attackableTile: AttackableTile): DamageDealt {
         return if (attacker is MapUnitCombatant && attacker.unit.hasUnique(UniqueType.ShellWeapon)) {
             Shell.Shell(attacker, attackableTile.tileToAttack)
