@@ -100,13 +100,14 @@ object Battle {
 
 
 
-    fun SpecialAttack(attacker: Iconmetant, attackabkeTile: AttackableTile): DamageDealt {
-        val Mortar: Int = 0
-        val MachineGun: Int = 0
-        val Grenade: Int = 0
-        val SecondRange:Int = 0
-        if (attacker is MapUnitCombatabt 
-            && attacker.unit.hasUnique(UnitType.Mortar)) {           
+    fun SpecialAttack(attacker: Icombatant, attackableTile: AttackableTile): DamageDealt {
+        var Mortar: Int = 0
+        var MachineGun: Int = 0
+        var Grenade: Int = 0
+        var SecondRange:Int = 0
+        if (attacker is MapUnitCombatant 
+            && attacker.unit.hasUnique(UnitType.Mortar)) {
+            
         }
             
         
