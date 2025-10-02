@@ -54,6 +54,7 @@ class UnitPresenter(private val unitTable: UnitTable, private val worldScreen: W
             return
         }
 
+
         // set texts - this is valid even when it's the same unit, because movement points and health change
         // single selected unit
         if (selectedUnits.size == 1) with(unitTable) { 
@@ -85,6 +86,13 @@ class UnitPresenter(private val unitTable: UnitTable, private val worldScreen: W
             if (unit.baseUnit.isRanged())
                 descriptionTable.add(Fonts.range + unit.getRange().tr()).padRight(10f)
 
+
+            if (unit.baseUnit.ammo != null) {
+                val ammoText = "${unit.baseUnit.ammo}/${unit.baseUnit.maxAmmo}"
+                descriptionTable.add("Ammo: $ammoText".toLabel()).padRight(10f)
+            }
+    
+                
             val interceptionRange = unit.getInterceptionRange()
             if (interceptionRange > 0) {
                 descriptionTable.add(ImageGetter.getStatIcon("InterceptRange")).size(20f)
