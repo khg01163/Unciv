@@ -128,7 +128,7 @@ object Battle {
             && attacker.unit.baseUnit.ammo != null
             && attacker.unit.baseUnit.ammo != 0) {
             var restAmmo = attacker.unit.baseUnit.ammo
-            restAmmo = restAmmo-1
+            restAmmo = restAmmo!!-1
             return restAmmo
         }
         if (attacker is MapUnitCombatant) {
