@@ -130,7 +130,7 @@ object Battle {
             var currentAmmo = attacker.unit.baseUnit.ammo!!
             currentAmmo -= 1
             attacker.unit.baseUnit.ammo = currentAmmo
-            return DamageDealt.None
+            return DamageDealt(0, 0)
         }
         if (attacker is MapUnitCombatant) {
             attacker.unit.attacksSinceTurnStart.add(Vector2(attackedTile.position))
