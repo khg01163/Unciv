@@ -127,7 +127,9 @@ object Battle {
         if (attacker is MapUnitCombatant
             && attacker.unit.baseUnit.ammo != null
             && attacker.unit.baseUnit.ammo != 0) {
-            ammo = ammo-1
+            var restAmmo = attacker.unit.baseUnit.ammo
+            restAmmo = restAmmo-1
+            return restAmmo
         }
         if (attacker is MapUnitCombatant) {
             attacker.unit.attacksSinceTurnStart.add(Vector2(attackedTile.position))
