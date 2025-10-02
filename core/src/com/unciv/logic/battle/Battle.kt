@@ -98,25 +98,6 @@ object Battle {
 
 
 
-
-
-    fun SpecialAttack(attacker: Icombatant, attackableTile: AttackableTile): DamageDealt {
-        var Mortar: Int = 0
-        var MachineGun: Int = 0
-        var Grenade: Int = 0
-        var SecondRange:Int = 0
-        if (attacker is MapUnitCombatant 
-            && attacker.unit.hasUnique(UnitType.Mortar)) {
-            
-        }
-            
-        
-        
-    }
-
-
-
-
     
     fun Shell(attacker: ICombatant, attackableTile: AttackableTile): DamageDealt {
         return if (attacker is MapUnitCombatant && attacker.unit.hasUnique(UniqueType.ShellWeapon)) {
@@ -140,6 +121,14 @@ object Battle {
     fun attack(attacker: ICombatant, defender: ICombatant): DamageDealt {
         debug("%s %s attacked %s %s", attacker.getCivInfo().civName, attacker.getName(), defender.getCivInfo().civName, defender.getName())
         val attackedTile = defender.getTile()
+        if (attacker is MapUnitCombatant
+            && attacker.unit.baseUnit.ammo != null
+            && attacker.unit.baseUnit.ammo == 0) return
+        if (attacker is MapUnitCombatant
+            && attacker.unit.baseUnit.ammo != null
+            && attacker.unit.baseUnit.ammo != 0) {
+            ammo = ammo-1
+        }
         if (attacker is MapUnitCombatant) {
             attacker.unit.attacksSinceTurnStart.add(Vector2(attackedTile.position))
         } else {
