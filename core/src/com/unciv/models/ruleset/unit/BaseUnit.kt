@@ -46,8 +46,8 @@ class BaseUnit : RulesetObject(), INonPerpetualConstruction {
     var interceptRange = 0
     var unitType: String = ""
     var movementCooldown: Int = 0
-    var maxAmmo: Int? = 0
-    var ammo: Int? = 0
+    var maxAmmo: Int? = null
+    var ammo: Int? = null
 
     
     
