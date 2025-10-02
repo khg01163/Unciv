@@ -8,6 +8,9 @@ class UnitTurnManager(val unit: MapUnit) {
 
 
  fun endTurn() {
+        if (unit.baseUnit.getTile == cityCenter.getTile) {
+            baseUnit.ammo = baseUnit.maxAmmo
+        }
         unit.movement.clearPathfindingCache()
 
         for (unique in unit.getTriggeredUniques(UniqueType.TriggerUponTurnEnd))
