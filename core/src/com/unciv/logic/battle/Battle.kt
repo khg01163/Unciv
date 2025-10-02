@@ -123,7 +123,7 @@ object Battle {
         val attackedTile = defender.getTile()
         if (attacker is MapUnitCombatant
             && attacker.unit.baseUnit.ammo != null
-            && attacker.unit.baseUnit.ammo == 0) return
+            && attacker.unit.baseUnit.ammo == 0) return DamageDealt.None
         if (attacker is MapUnitCombatant
             && attacker.unit.baseUnit.ammo != null
             && attacker.unit.baseUnit.ammo != 0) {
