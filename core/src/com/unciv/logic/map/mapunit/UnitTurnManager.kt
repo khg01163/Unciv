@@ -10,7 +10,7 @@ class UnitTurnManager(val unit: MapUnit) {
  fun endTurn() {
         val tile = unit.getTile()
     if (tile.isCityCenter()) {
-        unit.ammo = unit.maxAmmo
+        unit.baseUnit.ammo = unit.baseUnit.maxAmmo
     }
 
     
