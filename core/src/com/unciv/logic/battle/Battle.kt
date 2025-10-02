@@ -127,7 +127,7 @@ object Battle {
         if (attacker is MapUnitCombatant
             && attacker.unit.baseUnit.ammo != null
             && attacker.unit.baseUnit.ammo != 0) {
-            attacker.unit.baseUnit.ammo -= 1
+            attacker.unit.baseUnit.ammo!! -= 1
             return DamageDealt.None
         }
         if (attacker is MapUnitCombatant) {
