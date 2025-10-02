@@ -232,8 +232,17 @@ class MapUnit : IsPartOfGameInfoSerialization {
         return toReturn
     }
 
+    val MapUnit.remainingAmmo: Int
+    get() = this.baseUnit.ammo ?: 0
+
+    val MapUnit.maxAmmo: Int
+    get() = this.baseUnit.maxAmmo ?: 0
+
+
     val type: UnitType
         get() = baseUnit.type
+
+    
 
     @Readonly fun getMovementString(): String =
         (DecimalFormat("0.#").format(currentMovement.toDouble()) + "/" + getMaxMovement()).tr()
