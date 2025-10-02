@@ -127,8 +127,8 @@ object Battle {
         if (attacker is MapUnitCombatant
             && attacker.unit.baseUnit.ammo != null
             && attacker.unit.baseUnit.ammo != 0) {
-            var currentAmmo = attacker.unit.baseUnit.ammo
-            currentAmmo!! -= 1
+            var currentAmmo = attacker.unit.baseUnit.ammo!!
+            currentAmmo -= 1
             attacker.unit.baseUnit.ammo = currentAmmo
             return DamageDealt.None
         }
