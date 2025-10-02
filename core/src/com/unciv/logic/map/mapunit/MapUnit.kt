@@ -328,14 +328,6 @@ class MapUnit : IsPartOfGameInfoSerialization {
         return tempUniquesMap.getTriggeredUniques(trigger, gameContext, triggerFilter)
     }
 
-
-
-    fun reload(
-        if (MapUnit.getTile==cityCenter.getTile) {
-            MapUnit.ammo == baseUnit.maxAmmo
-        }
-        )
-
     
     /** Gets *per turn* resource requirements - does not include immediate costs for stockpiled resources.
      * StateForConditionals is assumed to regarding this mapUnit*/
