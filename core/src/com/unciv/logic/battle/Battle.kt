@@ -128,7 +128,7 @@ object Battle {
             && attacker.unit.baseUnit.ammo != null
             && attacker.unit.baseUnit.ammo != 0) {
             var currentAmmo = attacker.unit.baseUnit.ammo
-            cuurentAmmo!! -= 1
+            currentAmmo!! -= 1
             attacker.unit.baseUnit.ammo = currentAmmo
             return DamageDealt.None
         }
