@@ -46,6 +46,7 @@ import kotlin.random.Random
 class Tile : IsPartOfGameInfoSerialization, Json.Serializable {
     //region Serialized fields
     var militaryUnit: MapUnit? = null
+    val extraMilitaryUnits: MutableList<MapUnit> = mutableListOf()
     var civilianUnit: MapUnit? = null
     var airUnits = ArrayList<MapUnit>(0)
 
