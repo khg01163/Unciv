@@ -118,10 +118,6 @@ object Battle {
         }
     }
 
-    fun getDefenders(tile: Tile): List<MapUnit> {
-    return listOfNotNull(tile.militaryUnit) + tile.extraMilitaryUnits
-}
-
 
     fun attack(attacker: ICombatant, defender: ICombatant): DamageDealt {
         debug("%s %s attacked %s %s", attacker.getCivInfo().civName, attacker.getName(), defender.getCivInfo().civName, defender.getName())
