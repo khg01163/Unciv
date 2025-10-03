@@ -629,7 +629,8 @@ class UnitMovement(val unit: MapUnit) {
                 && (tile.militaryUnit == null || tile.militaryUnit!!.owner == unit.owner)
         else
         // can skip checking for airUnit since not a city
-            (tile.civilianUnit == null || tile.civilianUnit!!.owner == unit.owner || unit.civ.isAtWarWith(tile.civilianUnit!!.civ))
+        (tile.militaryUnit == null || (allowSwap && tile.militaryUnit!!.owner == unit.owner))
+                && (tile.civilianUnit == null || tile.civilianUnit!!.owner == unit.owner || unit.civ.isAtWarWith(tile.civilianUnit!!.civ))
     }
 
     @Readonly
