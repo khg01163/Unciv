@@ -118,6 +118,11 @@ object Battle {
         }
     }
 
+    fun getDefenders(tile: Tile): List<MapUnit> {
+    return listOfNotNull(tile.militaryUnit) + tile.extraMilitaryUnits
+}
+
+
     fun attack(attacker: ICombatant, defender: ICombatant): DamageDealt {
         debug("%s %s attacked %s %s", attacker.getCivInfo().civName, attacker.getName(), defender.getCivInfo().civName, defender.getName())
         val attackedTile = defender.getTile()
@@ -131,6 +136,13 @@ object Battle {
             currentAmmo -= 1
             attacker.unit.baseUnit.ammo = currentAmmo
         }
+        val defenders = defenderTile.getDefenders()
+        val chosenDefender = if (attacker.isAI()) {
+            defenders.maxByOrNull { it.strength }   // AI는 자동 선택
+        } else {
+            ui.promptPlayerToChooseDefender(defenders)  // 유저에게 선택창
+        }
+
         if (attacker is MapUnitCombatant) {
             attacker.unit.attacksSinceTurnStart.add(Vector2(attackedTile.position))
         } else {
